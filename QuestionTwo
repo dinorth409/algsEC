@@ -1,0 +1,219 @@
+// Dalton North
+// CSCI 140; Professor Devanny
+// Extra Credit Question Two
+package questionTwo;
+ 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+
+public class QuestionTwo {
+	
+	// Creates list of random numbers based on size input
+	int[] makeSequence(int size) {
+		int[] list = new int[size];
+		Random rand = new Random();
+		
+		for (int i = 0; i < size; i++) {
+			
+			list[i] = rand.nextInt(size);
+		}
+		
+		return list;
+	}
+	
+	// Base 10 RadixSort: https://www.reddit.com/r/javaexamples/comments/73rbk0/radix_sort_using_base10_and_base16/
+	public void radixSort(int array[]) {
+	    int digitPlace = 1;
+	    int n = array.length;
+	    int result[] = new int[n];
+
+	    int max = 0;
+
+	    while ( digitPlace == 1 || max / digitPlace > 0) {
+	        int count[] = new int[10];
+
+	        for (int each : array) {
+	        	
+	            if (digitPlace == 1) {
+	                if (each > max) {
+	                    max = each;
+	                }
+	            }
+
+	            count[(each / digitPlace) % 10]++;
+	        }
+
+	        for (int i = 1; i < 10; i++) {
+	            count[i] += count[i - 1];
+	        }
+
+	        for (int i = n - 1; i >= 0; i--) {
+	            
+	            int current = (array[i] / digitPlace) % 10;
+	            
+	            result[count[current] - 1] = array[i];
+	            count[current]--;
+	        }
+
+	        System.arraycopy(result, 0, array, 0, n);
+
+	        digitPlace *= 10;
+	    }
+	}
+	
+	// Base 16 radixSortHex: https://www.reddit.com/r/javaexamples/comments/73rbk0/radix_sort_using_base10_and_base16/
+	public void radixSortHex(int[] array) {
+
+	    int pos = 0; 
+	    int n = array.length;
+	    int[] result = new int[n];
+	    int max = 1;
+
+	    while (max >> pos > 0) {
+	    
+	        int[] count = new int[16];
+
+	        for (int each : array) {
+	            if (pos == 0) {
+	                if (each > max) max = each;
+	            }
+	            count[(each >> pos) & 0xf]++;
+	        }
+
+	        for (int i = 1; i < 16; i++) {
+	            count[i] += count[i - 1];
+	        }
+
+	        for (int i = n - 1; i >= 0; i--) {
+	            int current = (array[i] >> pos) & 0xf;
+	            result[count[current] - 1] = array[i];
+	            count[current]--;
+	        }
+
+	        System.arraycopy(result, 0, array, 0, n);
+	        pos += 4;
+	    }
+	}
+	
+	//Base 2 BinaryRadixSort: https://www.cs.hmc.edu/~keller/courses/cs60/s98/examples/Sort/radixsort.java
+	public void binaryRadixSort(int array[]) {
+	    int buffer[]    = new int[array.length];	
+	
+	    boolean done = false;		
+	
+	    for( int shiftAmount = 0; !done; shiftAmount++ )
+	      {
+	
+	      int count = 0;			
+	
+	      done = true;
+	
+	      for( int i = 0; i < array.length; i++ )
+		{
+	        int shifted = (array[i] >> shiftAmount); 
+	
+	        if( shifted > 0 )			
+	          done = false;
+	
+	        if( shifted % 2 == 0 )
+	          count++;				  
+		}
+	
+	      if( done )
+	        break;
+	
+	      int lower = 0, upper = count;		
+	
+	      for( int i = 0; i < array.length; i++ )
+		{
+	        int shifted = (array[i] >> shiftAmount);
+	
+	        if( shifted % 2 == 0 )
+	          {
+	          buffer[lower++] = array[i];
+	          }
+	        else
+	          {
+	          buffer[upper++] = array[i];
+	          }
+		}
+	
+	      for( int i = 0; i < array.length; i++ )
+		{
+	        array[i] = buffer[i];
+	        }
+	      }
+    }
+
+	public static void main(String[] args) {
+		
+		int finalTenAvg = 0;
+		int finalHexAvg = 0;
+		int finalBinaryAvg = 0;
+		
+		for (int i = 0; i < 5; i++) {
+		
+			QuestionTwo test = new QuestionTwo();
+			int size = 4000;			// Changes list size
+			int listNum = 100;		// Changes number of lists
+	        
+	        List<Long> tenTimes = new ArrayList<Long>();
+	        List<Long> hexTimes = new ArrayList<Long>();
+	        List<Long> binaryTimes = new ArrayList<Long>();
+	        
+	        for (int n = 0; n < listNum; n++) {
+	        	int[] range = test.makeSequence(size);
+	        	int[] range2 = test.makeSequence(size);
+	        	int[] range3 = test.makeSequence(size);
+	        	
+	        	long startTime = System.nanoTime();
+	            test.radixSort(range);
+	            long endTime = System.nanoTime();
+	    		long duration = (endTime - startTime);
+	        	
+	        	long startTime2 = System.nanoTime();
+	            test.radixSortHex(range2);
+	            long endTime2 = System.nanoTime();
+	    		long duration2 = (endTime2 - startTime2);
+	    		
+	    		long startTime3 = System.nanoTime();
+	            test.binaryRadixSort(range3);
+	            long endTime3 = System.nanoTime();
+	    		long duration3 = (endTime3 - startTime3);
+	    		
+	    		tenTimes.add(duration);
+	    		hexTimes.add(duration2);
+	    		binaryTimes.add(duration3);
+	        }
+	        
+	        int tenSum = 0;
+	        int hexSum = 0;
+	        int binarySum = 0;
+	        
+	        for (int n = 0; n < listNum; n++) {
+	        	tenSum += tenTimes.get(n);
+	        	hexSum += hexTimes.get(n);
+	        	binarySum += binaryTimes.get(n);
+	        }
+	        
+	        int tenAvg = tenSum / listNum;
+	        int hexAvg = hexSum / listNum;
+	        int binaryAvg = binarySum / listNum;
+	        
+	        if (i == 4) {
+	        	
+	        	finalTenAvg = tenAvg;
+	        	finalHexAvg = hexAvg;
+	        	finalBinaryAvg = binaryAvg;
+	        }
+	        
+		}
+        
+        System.out.println("Base 2: " + finalBinaryAvg);
+        System.out.println("Base 10: " + finalTenAvg);
+        System.out.println("Base 16: " + finalHexAvg);
+        
+	}
+
+}
