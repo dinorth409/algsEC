@@ -1,0 +1,191 @@
+// Dalton North
+// CSCI 140; Professor Devanny
+// Extra Credit Question One
+package questionOne;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+
+public class QuestionOne {
+	
+	// Creates list of random numbers based on size input
+		int[] makeSequence(int size) {
+			int[] list = new int[size];
+			Random rand = new Random();
+			
+			for (int i = 0; i < size; i++) {
+				
+				list[i] = rand.nextInt(size);
+			}
+			
+			return list;
+		}
+	
+	// Insertion sort: https://gist.github.com/felipernb/3307444
+	void insertionSort(int[] arr) 
+    { 
+        int n = arr.length; 
+        for (int i = 1; i < n; ++i) { 
+            int key = arr[i]; 
+            int j = i - 1; 
+  
+            while (j >= 0 && arr[j] > key) { 
+            	arr[j+1] = arr[j];
+                j = j - 1;
+            }
+            arr[j+1] = key;
+        } 
+    } 
+	
+	// Merge sort: https://www.geeksforgeeks.org/merge-sort/
+	void merge(int arr[], int l, int m, int r) 
+    { 
+        int n1 = m - l + 1; 
+        int n2 = r - m; 
+  
+        int L[] = new int [n1]; 
+        int R[] = new int [n2]; 
+  
+        for (int i=0; i<n1; ++i) 
+            L[i] = arr[l + i]; 
+        for (int j=0; j<n2; ++j) 
+            R[j] = arr[m + 1+ j]; 
+  
+        int i = 0, j = 0; 
+  
+        int k = l; 
+        while (i < n1 && j < n2) 
+        { 
+            if (L[i] <= R[j]) 
+            { 
+                arr[k] = L[i]; 
+                i++; 
+            } 
+            else
+            { 
+                arr[k] = R[j]; 
+                j++; 
+            } 
+            k++; 
+        } 
+  
+        while (i < n1) 
+        { 
+            arr[k] = L[i]; 
+            i++; 
+            k++; 
+        } 
+  
+        while (j < n2) 
+        { 
+            arr[k] = R[j]; 
+            j++; 
+            k++; 
+        } 
+    } 
+  
+    void mergeSort(int arr[], int l, int r) 
+    { 
+        if (l < r) 
+        { 
+            int m = (l+r)/2; 
+  
+            mergeSort(arr, l, m); 
+            mergeSort(arr , m+1, r); 
+  
+            merge(arr, l, m, r); 
+        } 
+    } 
+    
+    int[] cloneArr(int[] arr) {
+		int[] result = new int[arr.length];
+		
+		for(int i = 0; i < arr.length; i++) {
+			result[i] = arr[i];
+		}
+		
+		return result;
+	}
+    
+	
+	public static void main(String[] args) {
+		
+		int finalInsertionAvg = 0;
+		int finalMergeAvg = 0;
+		
+		for (int i = 0; i < 5; i++) {
+		
+			QuestionOne test = new QuestionOne();
+			
+			int size = 4000; 		// TO CHANGE SIZE OF LIST
+			int listNum = 100;
+			
+			// Insertion testing
+			
+			List<Long> insertionTimes = new ArrayList<Long>();
+			
+			for (int j = 0; j < listNum; j++) {
+				
+				int[] range = test.makeSequence(size);
+				
+				long startTime = System.nanoTime();
+				test.insertionSort(range);
+				long endTime = System.nanoTime();
+				long duration = (endTime - startTime);
+				
+				insertionTimes.add(duration);
+			}
+			
+			int insertionSum = 0;
+			
+			for (int j = 0; j < insertionTimes.size(); j++) {
+				
+				insertionSum += insertionTimes.get(j);
+			}
+			
+			int insertionAvg = insertionSum / insertionTimes.size();
+			
+			// Merge testing
+			
+			List<Long> mergeTimes = new ArrayList<Long>();
+			
+			for (int j = 0; j < listNum; j++) {
+				
+				int[] range = test.makeSequence(size);
+				
+				long startTime = System.nanoTime();
+				test.mergeSort(range, 0, range.length-1);
+				long endTime = System.nanoTime();
+				long duration = (endTime - startTime);
+				
+				mergeTimes.add(duration);
+			}
+			
+			int mergeSum = 0;
+			
+			for (int j = 0; j < mergeTimes.size(); j++) {
+				
+				mergeSum += mergeTimes.get(j);
+			}
+			
+			int mergeAvg = mergeSum / mergeTimes.size();
+			
+			if (i == 4) {
+				finalInsertionAvg = insertionAvg;
+				finalMergeAvg = mergeAvg;
+			}
+		}
+		
+		System.out.println("Insertion: " + finalInsertionAvg);
+		System.out.println("Merge: " + finalMergeAvg);
+		
+		if (finalMergeAvg < finalInsertionAvg) {
+			System.out.println("MergeSort is faster");
+		} else {
+			System.out.println("InsertionSort is faster");
+		}
+		
+	}
+
+}
